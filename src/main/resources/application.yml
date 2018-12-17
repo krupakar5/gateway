@@ -1,0 +1,10 @@
+info:
+  component: GATEWAY-SERVER
+
+endpoints:
+  health:
+    sensitive: false
+    
+security:
+  basic:
+    enabled: false

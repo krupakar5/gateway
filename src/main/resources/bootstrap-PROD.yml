@@ -1,0 +1,84 @@
+server:
+  port: 10251
+  ssl:
+    enabled: false
+
+management:
+  port: 11251
+  context-path: /
+  security:
+    enabled: false
+
+spring:
+  profiles:
+    active: PROD
+  application:
+    name: GATEWAY-SERVER
+  zipkin:
+    base-url: http://${ZIPKIN_SERVER}:8888
+  sleuth:
+    enabled: true
+    sampler:
+      percentage: 1.0
+
+eureka:
+  datacenter: cloud
+  region: us-east-1
+  environement: PROD 
+  instance:
+    hostname: ${local-hostname}
+    ipAddress: ${local-ipv4}
+    preferIpAddress: false
+    # used when Self Preservation is false
+    leaseRenewalIntervalInSeconds: 3
+    leaseExpirationDurationInSeconds: 5
+    #homePageUrl: http://${eureka.instance.ipAddress}:${server.port}${server.contextPath}
+    statusPageUrlPath: ${management.context-path}info
+    healthCheckUrlPath: ${management.context-path}health
+    managementUrlPath: ${management.context-path}/
+    metadataMap:
+      key: value
+      management:
+        port: ${management.port}
+        context-path: ${management.context-path}
+      managementUrl: http://${eureka.instance.ipAddress}:${management.port}${management.context-path}
+      instanceId: ${vcap.application.instance_id:${spring.application.name}_${eureka.instance.ipAddress}:${server.port}}
+    instanceId: ${vcap.application.instance_id:${spring.application.name}_${eureka.instance.ipAddress}:${server.port}}
+  client:
+    # Default values comes from org.springframework.cloud.netflix.eurek.EurekaClientConfigBean
+    registryFetchIntervalSeconds: 3
+    # instanceInfoReplicationIntervalSeconds: 2
+    # initialInstanceInfoReplicationIntervalSeconds: 2
+    serviceUrl:
+      #defaultZone: http://127.0.0.1:7101/eureka/ #,http://127.0.1.1:7103/eureka/
+      defaultZone: http://${DISCOVERY_SERVER1}:10245/eureka/,http://${DISCOVERY_SERVER2}:10245/eureka/
+
+#eureka.client.serviceUrl.defaultZone: http://discovery:8761/eureka/
+
+zuul:
+  retryable: true
+  sensitiveHeaders:
+  host:
+    connect-timeout-millis: 3000
+    socket-timeout-millis: 3000
+    max-total-connections: 100000
+    max-per-route-connections: 500
+
+ribbon:
+  ReadTimeout: 15000
+  ConnectTimeout: 3000
+  OkToRetryOnAllOperations: true
+  MaxAutoRetriesNextServer: 2
+  MaxAutoRetries: 1
+  serverListRefreshInterval: 2000
+  MaxTotalHttpConnections: 100000
+  MaxConnectionsPerHost: 500
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 30000
