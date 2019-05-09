@@ -1,0 +1,38 @@
+pipeline {
+	agent any
+	tools { 
+        maven 'Maven'  
+          }
+	stages {
+	         stage ('scm checkout') {
+			       steps {
+					checkout([$class: 'GitSCM', branches: [[name: '*/msa-develop']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: 'tuleap', url: 'http://182.74.133.93/plugins/git/microservice-poc/msa-BE.git']]])
+	                      }
+                    }						  
+			 stage ('build') {
+			       steps {
+				           sh label: '', script: '''cd /var/lib/jenkins/workspace/msa-gateway-DSL/microservices-gateway-service
+                                                    mvn clean install
+			                                     '''
+					     }
+					}					
+			 stage ('deploy') {
+			      steps {
+				     sh label: '', script: '''
+                                              cd /var/lib/jenkins/workspace/msa-gateway-DSL/microservices-gateway-service					 
+											  docker rmi -f gateway
+											  docker build -t gateway .
+											  docker login
+                                              docker tag gateway krupa/msa-banking-aws:gateway-${BUILD_NUMBER}
+                                              docker push krupa/msa-banking-aws:gateway-${BUILD_NUMBER}
+											  docker pull krupa/msa-banking-aws:gateway-${BUILD_NUMBER}
+											                                            
+                                              docker stop my-gateway
+                                              docker rm -f my-gateway                                           
+                                              
+                                              docker run --name=my-gateway -d -p 2222:2222 krupa/msa-banking-aws:gateway-${BUILD_NUMBER}
+										   '''										   
+						}
+					}
+				}
+}
