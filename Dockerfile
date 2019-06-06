@@ -1,4 +1,4 @@
-FROM gizmotronic/oracle-java:java8
+FROM openjdk:8-jre
 LABEL maintainer="krupakar.maadineni@goevive.com"
 #RUN apt update ; apt install awscli telnet -y
 #ADD aws /root/.aws
