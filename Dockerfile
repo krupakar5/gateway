@@ -4,5 +4,5 @@ LABEL maintainer="krupakar.maadineni@goevive.com"
 #ADD aws /root/.aws
 #ADD $DOCKER_SUBDIR /$DOCKER_SUBDIR
 ADD target/*.jar /gateway_Server.jar
-ENTRYPOINT [ "java", "-Xmx512m", "gateway_server.jar", "-Dstagemonitor.property.overrides=stagemonitor-DEV.properties", "-jar", "DEV" ]
+ENTRYPOINT [ "java", "gateway_server.jar", "-Dstagemonitor.property.overrides=stagemonitor-DEV.properties", "-jar", "DEV" ]
 EXPOSE 10251 11251
